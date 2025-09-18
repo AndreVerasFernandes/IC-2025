@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatbot de Atendimento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <div class="logo-area" role="banner">
+      <div class="logo-box" aria-label="Logo da universidade">
+        <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Logo da universidade">
+      </div>
+    </div>
+    <div class="content">
+      <div class="chat-widget" aria-label="Chat de atendimento">
+        <header class="chat-header">
+          <div class="chat-header__info">
+            <img class="chat-header__avatar" src="https://ui-avatars.com/api/?name=Bot&background=0D8ABC&color=fff" alt="Avatar do bot" />
+            <div>
+              <div class="chat-header__title">Atendimento</div>
+              <div class="chat-header__status">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span class="status-text" aria-live="polite">online</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="chat-main">
+          <ul class="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></ul>
+
+          <div class="quick-replies" aria-label="Sugestões rápidas" role="group"></div>
+        </main>
+
+        <footer class="chat-input">
+          <div class="attach">
+            <input id="file-input" type="file" class="visually-hidden" multiple />
+            <button class="icon-btn" id="attach-btn" aria-label="Anexar arquivo" title="Anexar">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M7.5 20A4.5 4.5 0 0 1 3 15.5V8a5 5 0 0 1 10 0v8.5a3 3 0 0 1-6 0V9a1 1 0 1 1 2 0v7.5a1 1 0 0 0 2 0V8a3 3 0 0 0-6 0v7.5A2.5 2.5 0 0 0 10.5 18h3a1 1 0 1 1 0 2h-3A4.5 4.5 0 0 1 7.5 20Z"/></svg>
+            </button>
+          </div>
+          <label for="message-input" class="visually-hidden">Mensagem</label>
+          <textarea id="message-input" rows="1" placeholder="Digite sua mensagem..." aria-label="Campo de mensagem"></textarea>
+          <button class="send-btn" id="send-btn" aria-label="Enviar mensagem" title="Enviar">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <noscript>Ative o JavaScript para usar o chat.</noscript>
+</body>
+</html>
+
+
