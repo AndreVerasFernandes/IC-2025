@@ -275,6 +275,8 @@ class QueryOrchestrator:
 
             context_prompt = template + context_and_query.format(context=context_str)
             self.logger.debug("Prompt de contexto preparado com sucesso usando template.")
+            self.logger.debug("Prompt de contexto:", context_prompt)
+            self.metrics_data["context_prompt"] = context_prompt
             return context_prompt
         except KeyError as e:
             self.logger.error(
@@ -307,6 +309,7 @@ class QueryOrchestrator:
         self.metrics_data["embedding_dimension"] = self.embedding_generator.embedding_dimension
         self.metrics_data["faiss_index_type"] = self.faiss_manager.config.vector_store.index_type
         self.metrics_data["retrieved_chunks"] = 0
+        self.metrics_data["context_prompt"] = None
 
     def query_llm(self, query: str, domain_names: Optional[List[str]] = None) -> Dict[str, Any]:
         """
