@@ -20,7 +20,9 @@ Projeto de Iniciação Científica do SENAC
 
 
 Link do FrontEnd separado: https://github.com/larissacara/chatbot-ui 
+
 Link do Codigo RAG separado: https://github.com/fmossri/pbic-project
+
 ## Instalação do Projeto Completo
 
 1.  **Clone o repositório:**
