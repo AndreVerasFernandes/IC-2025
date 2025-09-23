@@ -5,8 +5,8 @@ import numpy as np
 from typing import List, Optional
 import os
 from pathlib import Path
-from src.utils.logger import get_logger
-from src.config.models import AppConfig
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import AppConfig
 
 class FaissManager:
     """Componente para armazenamento e indexação de vetores usando FAISS.

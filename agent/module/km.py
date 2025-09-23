@@ -1,22 +1,32 @@
+import sys
+import os
+import logging
+
+# Adiciona a raiz do projeto (/workspaces/IC-2025) ao sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+rag_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../rag'))
+from rag.RAGInterface import RAGInterface
+
 class KnowledgeManagement:
+    def __init__(self, config_path="../rag/config.toml"):
+        # Inicializando o RAGInterface dentro do KM
+        self.rag_interface = RAGInterface(config_path=config_path)
+    
+    def query_knowledge(self, question: str, domain: str = "Teste") -> str:
+        """
+        Método para consultar o RAGInterface e retornar uma resposta.
 
-    def __init__(self):
-        self._definitions: dict[str, str] = {
-            'DOC': 'Documento de Ordem de Crédito (DOC) é o meio usado para transações com o valor máximo de até R$ 4.999,99.',
-            'TED': 'A Transferência Eletrônica Disponível (TED) é a movimentação de dinheiro entre contas sem restrição de valor.',
-            'PIX': 'Criado pelo Banco Central do Brasil, o Pix é um novo meio de pagamentos que surgiu com o objetivo de simplificar e facilitar as transações bancárias. A principal diferença do Pix para o TED ou para o DOC é o fato de ser instantâneo: o dinheiro é enviado e recebido na hora, em questão de instantes.'
-        }
+        Args:
+            question: A pergunta do usuário.
+            domain: O domínio relacionado à consulta.
 
-    def get_primary_slots(self, operation: str, domain: str = 'transacional') -> list[str]:
-        if operation == 'transferencia':
-            return ['valor', 'pessoa', 'tipo_transferencia']
-        return []
-
-    def confirmation_demand(self, operation: str, domain: str = 'transacional') -> bool:
-        return operation == 'transferencia'
-
-    def get_label(self, element_id: str, domain: str = 'transacional') -> str:
-        return element_id
-
-    def get_definition(self, element_id: str, domain: str = 'transacional') -> str | None:
-        return self._definitions.get(element_id)
+        Returns:
+            A resposta gerada pelo RAGInterface.
+        """
+        try:
+            result = self.rag_interface.query_llm(question, domains=["Teste"])
+            return result["answer"]
+        except Exception as e:
+            # Logar erro e retornar uma mensagem padrão
+            logging.error(f"Erro ao consultar o RAGInterface: {e}")
+            return "Desculpe, houve um erro ao acessar o sistema de conhecimento."

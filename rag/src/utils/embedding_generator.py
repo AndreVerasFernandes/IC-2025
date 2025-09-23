@@ -1,8 +1,8 @@
 from sentence_transformers import SentenceTransformer
 from typing import List
 import numpy as np
-from src.utils.logger import get_logger
-from src.config.models import EmbeddingConfig
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import EmbeddingConfig
 
 class EmbeddingGenerator:
     """Gerador de embeddings para chunks de texto.

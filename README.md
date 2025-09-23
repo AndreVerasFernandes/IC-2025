@@ -2,14 +2,64 @@
 
 Projeto de Iniciação Científica do SENAC
           IA: Agente Conversacional Inteligente para Melhorar o Suporte ao Cliente
+          
           Professores: Nilo Sergio Maziero Petrin e João Carlos Néto
+          
           CAS – Centro Universitário Santo Amaro
+          
           Grupo de Pesquisa: Gestão, Mercado e Serviços
+          
           Linha de Pesquisa: Mercado e Serviços
 
+          Alunos: André Luiz Veras Fernandes
+
+          Francisco de Bulhoes Mossri
+
+          Larissa Cara
 
 
 
+Link do FrontEnd separado: https://github.com/larissacara/chatbot-ui 
+Link do Codigo RAG separado: https://github.com/fmossri/pbic-project
+## Instalação do Projeto Completo
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/AndreVerasFernandes/IC-2025.git
+c
+    ```
+
+2.  **Crie e ative um ambiente virtual:** (Recomendado)
+    ```bash
+    # Linux/macOS
+    python3 -m venv .venv
+    source .venv/bin/activate
+
+    # Windows (cmd/powershell)
+    python -m venv .venv
+    .venv\Scripts\activate
+    ```
+
+3.  **Instale as dependências:**
+    ```bash
+    python install.py * Substitui pip install -r requirements.txt, para garantir portabilidade através de sistemas com gpus diferentes, ou sem gpu
+    ```
+4.  **Configure o Token da Gemini:**
+    *   Crie um token no site da [Gemini](https://aistudio.google.com/apikey?hl=pt-br).
+    *   Crie um arquivo chamado `.env` na raiz do projeto.
+    *   Adicione a seguinte linha ao arquivo `.env`, substituindo `seu-token-aqui` pelo seu token:
+        ```dotenv
+        GEMINI_API_KEY="seu-token-aqui"
+        ```
+
+
+
+## Uso
+
+```bash
+cd agent
+python app.py
+```
 
 
 # Sistema RAG de Ingestão de PDFs com GUI e testagem com consultas a LLMs
@@ -190,7 +240,7 @@ Este sistema implementa um pipeline RAG (Retrieval-Augmented Generation) para pr
 1.  **Clone o repositório:**
     ```bash
     git clone https://github.com/fmossri/pbic-project.git
-    cd pbic-project
+    c
     ```
 
 2.  **Crie e ative um ambiente virtual:** (Recomendado)

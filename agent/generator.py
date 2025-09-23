@@ -15,7 +15,7 @@ logging.basicConfig(
 load_dotenv()
 
 class Generator:
-    def __init__(self, model_name="gemini-2.0-flash", device=None):
+    def __init__(self, model_name="gemini-2.0-flash", max_tokens: int = 1024, temperature: float = 0.7, device=None):
         """
         Inicializa a classe NLU e configura o cliente para a API do Gemini (via SDK da OpenAI).
         """
@@ -28,6 +28,10 @@ class Generator:
             raise ValueError("GEMINI_API_KEY não encontrado.")
 
         self.model_name = model_name
+        self.max_tokens = max_tokens
+        self.temperature = temperature
+
+
 
         # Cliente OpenAI compatível com Gemini
         self.client = OpenAI(
@@ -72,8 +76,8 @@ class Generator:
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=messages,
-                max_tokens=1024,
-                temperature=0.7
+                max_tokens=self.max_tokens,
+                temperature=self.temperature
             )
 
             generated_text = response.choices[0].message.content.strip()

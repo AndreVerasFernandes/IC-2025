@@ -3,12 +3,12 @@ import sqlite3
 from datetime import datetime
 from typing import Dict, List, Any
 
-from src.models import DocumentFile, Chunk
-from src.utils import TextNormalizer, EmbeddingGenerator, FaissManager, SQLiteManager
-from src.utils.logger import get_logger
+from rag.src.models import DocumentFile, Chunk
+from rag.src.utils import TextNormalizer, EmbeddingGenerator, FaissManager, SQLiteManager
+from rag.src.utils.logger import get_logger
 from .document_processor import DocumentProcessor
 from .chunking_strategy.chunking_manager import ChunkingManager
-from src.config import AppConfig, check_config_changes
+from rag.src.config import AppConfig, check_config_changes
 class DataIngestionOrchestrator:
     """Componente principal para gerenciar o processamento de arquivos PDF."""
 

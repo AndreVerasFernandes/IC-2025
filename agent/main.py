@@ -26,13 +26,13 @@ class Agent:
         filter_result = self.user_connection.filter_input(message.message)
 
         if not filter_result.valid:
-            return ['Não posso responder essa sua mensagem']
+            return ['Não posso responder essa sua mensagem pelo filtro']
 
         semantic_doc = self.nlu.process(message)
         analysis = semantic_doc.get("analysis", {})
 
         if not analysis.get('intents'):
-            return ['Não posso responder essa sua mensagem']
+            return ['Não posso responder essa sua mensagem pelo intent']
 
         semantic_doc_obj = SemanticDocument(
             intents=analysis.get("intents", []),
@@ -47,9 +47,9 @@ class Agent:
 
         states = self.bt.update_state(semantic_doc_obj)
         if not states:
-            return ['Não posso responder essa sua mensagem']
+            return ['Não posso responder essa sua mensagem pelo state']
 
-        actions = self.policy.act(user, states)
+        actions = self.policy.act(user, states, text)
 
         responses = []
         for action in actions:

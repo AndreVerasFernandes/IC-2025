@@ -2,8 +2,8 @@ from huggingface_hub import InferenceClient
 from huggingface_hub.errors import HfHubHTTPError
 from dotenv import load_dotenv
 import os
-from src.utils.logger import get_logger
-from src.config.models import LLMConfig
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import LLMConfig
 
 load_dotenv()
 

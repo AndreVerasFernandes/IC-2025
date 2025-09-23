@@ -7,8 +7,8 @@ from langchain_community.document_loaders import PyPDFLoader
 from pypdf.errors import PdfStreamError
 from langchain.schema import Document
 
-from src.models import DocumentFile
-from src.utils.logger import get_logger
+from rag.src.models import DocumentFile
+from rag.src.utils.logger import get_logger
 
 class DocumentProcessor:
     """Processa documentos PDF para extração de texto."""

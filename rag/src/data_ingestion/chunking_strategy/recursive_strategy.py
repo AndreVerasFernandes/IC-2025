@@ -5,8 +5,8 @@ from langchain.schema import Document
 from sentence_transformers import SentenceTransformer
 from keybert import KeyBERT
 
-from src.models import Chunk, DocumentFile
-from src.config.models import AppConfig
+from rag.src.models import Chunk, DocumentFile
+from rag.src.config.models import AppConfig
 
 from .chunking_strategy import ChunkingStrategy
 

@@ -1,7 +1,7 @@
 import unicodedata
 import re
-from src.utils.logger import get_logger
-from src.config.models import TextNormalizerConfig
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import TextNormalizerConfig
 
 class TextNormalizer:
     """Normalização de texto para o sistema RAG, configurável via TextNormalizerConfig."""

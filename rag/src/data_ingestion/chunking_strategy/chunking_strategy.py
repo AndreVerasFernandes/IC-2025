@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from src.models import Chunk, DocumentFile
-from src.config.models import AppConfig
-from src.utils.logger import get_logger
+from rag.src.models import Chunk, DocumentFile
+from rag.src.config.models import AppConfig
+from rag.src.utils.logger import get_logger
 from sentence_transformers import SentenceTransformer
 from keybert import KeyBERT
 

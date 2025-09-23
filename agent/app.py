@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify, render_template
 from main import Agent
 from flask_cors import CORS  # Se o frontend for separado
+import logging
 
-app = Flask(__name__, template_folder='../chatbot-ui')
+logging.getLogger("watchdog").setLevel(logging.WARNING)
+
+app = Flask(__name__, template_folder='/workspaces/IC-2025/agent')
 CORS(app)  # Permite requisições do frontend (CORS)
 
 agent = Agent(llm=True)

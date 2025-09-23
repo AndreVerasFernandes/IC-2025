@@ -26,12 +26,11 @@ class NLG:
         }
 
     def generate(self, action: Action) -> str:
-        if action.intent == Intent.FORA_CONTEXTO_LLM:
-            return 'Desculpe, mas parece que esse assunto está fora do esperado para essa conversa. Se quiser falar sobre assuntos bancários eu posso te ajudar'
-        response = self._internal_generate(action)
-        return response
-
-    def _internal_generate(self, action: Action) -> str:
-        if action.intent in self._response_generators_dict:
-            return self._response_generators_dict[action.intent].generate(action)
-        log.error('No response generator found for action with intent ' + action.intent)
+        if action.intent == Intent.INFORMAR and "resposta" in action.slots:
+            return action.slots["resposta"]
+        elif action.intent == Intent.SAUDACAO:
+            return "Olá! Como posso ajudar?"
+        elif action.intent == Intent.DESPEDIDA:
+            return "Até logo!"
+        else:
+            return "Desculpe, não entendi sua solicitação."

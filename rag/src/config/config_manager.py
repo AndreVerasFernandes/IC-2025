@@ -8,7 +8,7 @@ from tomlkit.items import Table, Item
 from pydantic import ValidationError, BaseModel 
 
 from .models import AppConfig
-from src.utils.logger import get_logger
+from rag.src.utils.logger import get_logger
 
 logger = get_logger(__name__, log_domain="config_manager")
 

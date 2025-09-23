@@ -1,10 +1,10 @@
 import os
 import shutil
 from typing import Dict, Any, List, Tuple
-from src.utils.sqlite_manager import SQLiteManager
-from src.utils.logger import get_logger
-from src.models import Domain, DocumentFile, DomainConfig
-from src.config.models import AppConfig
+from rag.src.utils.sqlite_manager import SQLiteManager
+from rag.src.utils.logger import get_logger
+from rag.src.models import Domain, DocumentFile, DomainConfig
+from rag.src.config.models import AppConfig
 class DomainManager:
 
     def __init__(self, config: AppConfig, sqlite_manager: SQLiteManager, log_domain: str = "utils"):
@@ -88,12 +88,12 @@ class DomainManager:
                     "domain_id": domain_id,
                     "embeddings_model": new_domain_data["embeddings_model"],
                     "faiss_index_type": new_domain_data["faiss_index_type"],
-                    "chunking_strategy": new_domain_data["chunking_strategy"],
+                    "chunking_strategy": "semantic-cluster",
                     "chunk_size": new_domain_data["chunk_size"],
                     "chunk_overlap": new_domain_data["chunk_overlap"],
                     "cluster_distance_threshold": new_domain_data["cluster_distance_threshold"],
                     "chunk_max_words": new_domain_data["chunk_max_words"],
-                    "normalize_embeddings": new_domain_data["normalize_embeddings"],
+                    "normalize_embeddings": True,
                     "combine_embeddings": new_domain_data["combine_embeddings"],
                     "embedding_weight": new_domain_data["embedding_weight"],
                 }

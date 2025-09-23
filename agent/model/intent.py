@@ -29,6 +29,7 @@ class Intent(str, Enum):
     CONFIRMAR = 'confirmar'
     NAO_CONFIRMAR = 'não confirmar'
     PERGUNTAR = 'perguntar'
+    QUESTION = 'question'
     SUMARIZAR = 'sumarizar'
     LLM = 'llm'
     FORA_CONTEXTO = 'fora de contexto'

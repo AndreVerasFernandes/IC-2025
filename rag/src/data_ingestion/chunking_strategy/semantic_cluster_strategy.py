@@ -8,9 +8,9 @@ from sklearn.cluster import AgglomerativeClustering
 
 from langchain_core.documents import Document
 
-from src.models import Chunk, DocumentFile
-from src.config.models import AppConfig
-from src.utils.logger import get_logger
+from rag.src.models import Chunk, DocumentFile
+from rag.src.config.models import AppConfig
+from rag.src.utils.logger import get_logger
 from .chunking_strategy import ChunkingStrategy
 
 class SemanticClusterStrategy(ChunkingStrategy):

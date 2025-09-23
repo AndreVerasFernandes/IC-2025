@@ -1,8 +1,8 @@
 from typing import List, Dict, Optional
 
-from src.models import Chunk, DocumentFile
-from src.utils.logger import get_logger
-from src.config.models import AppConfig
+from rag.src.models import Chunk, DocumentFile
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import AppConfig
 
 from .chunking_strategy import ChunkingStrategy
 from .recursive_strategy import RecursiveStrategy

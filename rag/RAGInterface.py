@@ -12,20 +12,23 @@ Usage:
     result = rag.query_llm("What is the refund policy?", domains=["Finance"])
     print(result["answer"])
 """
-
+import sys
 import os
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from src.config import AppConfig
-from src.config.config_manager import ConfigManager
-from src.models import Domain, Chunk
-from src.query_processing.query_orchestrator import QueryOrchestrator
-from src.utils.domain_manager import DomainManager
-from src.utils.sqlite_manager import SQLiteManager
-from src.utils.logger import get_logger
+from rag.src.config import AppConfig
+from rag.src.config.config_manager import ConfigManager
+from rag.src.models import Domain, Chunk
+from rag.src.query_processing.query_orchestrator import QueryOrchestrator
+from rag.src.utils.domain_manager import DomainManager
+from rag.src.utils.sqlite_manager import SQLiteManager
+from rag.src.utils.logger import get_logger
 
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from agent.generator import Generator
 
 class RAGInterfaceError(Exception):
     """Base exception for RAG Interface errors."""
@@ -81,6 +84,7 @@ class RAGInterface:
                 sqlite_manager=self.sqlite_manager,
                 log_domain="RAG Interface"
             )
+            
             
             # Initialize query orchestrator
             self.query_orchestrator = QueryOrchestrator(self.config, self.sqlite_manager, llm_generator)

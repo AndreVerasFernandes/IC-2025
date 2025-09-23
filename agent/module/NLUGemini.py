@@ -82,23 +82,24 @@ class NLU:
             }
 
         system_instruction = (
-            "Você é um especialista em análise semântica, sintática e pragmática de textos em português do Brasil. "
-            "Sua tarefa é analisar uma mensagem textual e gerar um objeto JSON com as seguintes informações:\n\n"
-            "IMPORTANTE: Retorne APENAS o JSON puro, sem comentários, explicações ou blocos de código markdown como ```json \n"
-            "Formato de saída esperado:\n"
-            "{\n"
-            '  "original_sentence": "<mensagem_original>",\n'
-            '  "analysis": {\n'
-            '    "intents": [],\n'
-            '    "operations": [],\n'
-            '    "questions": [],\n'
-            '    "entities": [],\n'
-            '    "sentiment": "",\n'
-            '    "domain": "",\n'
-            '    "dependent": false,\n'
-            '    "complexity": null\n'
-            "  }\n"
-            "}"
+                "Você é um especialista em análise semântica, sintática e pragmática de textos em português do Brasil. "
+                "Sua tarefa é analisar uma mensagem textual e gerar um objeto JSON com as seguintes informações:\n\n"
+                "IMPORTANTE: Retorne APENAS o JSON puro, sem comentários, explicações ou blocos de código markdown como ```json \n"
+                "Formato de saída esperado:\n"
+                "{\n"
+                '  "original_sentence": "<mensagem_original>",\n'
+                '  "analysis": {\n'
+                '    "intents": [],\n'
+                '    "operations": [],\n'
+                '    "questions": [],\n'
+                '    "entities": [],\n'
+                '    "sentiment": "",\n'
+                '    "domain": "",\n'
+                '    "dependent": false,\n'
+                '    "complexity": null\n'
+                "  }\n"
+                "}\n\n"
+                "Regra adicional: caso a mensagem seja uma pergunta, adicione obrigatoriamente o valor \"question\" na lista \"intents\"."
         )
 
         user_prompt = f"Analise a seguinte frase: {text}"

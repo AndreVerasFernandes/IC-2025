@@ -4,9 +4,9 @@ import json
 
 from typing import List, Optional, Dict, Any
 
-from src.models import DocumentFile, Chunk, Domain, DomainConfig
-from src.utils.logger import get_logger
-from src.config.models import SystemConfig
+from rag.src.models import DocumentFile, Chunk, Domain, DomainConfig
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import SystemConfig
 
 
 class SQLiteManager:

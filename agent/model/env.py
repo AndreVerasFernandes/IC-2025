@@ -1,13 +1,17 @@
+"""
+
+
 import os
 from dotenv import load_dotenv
 from mistralai import Mistral
-
+"""
 
 class Env:
     """
     Objetivo: Configurar o ambiente para a aplicação, incluindo a inicialização do cliente Mistral.
     Atributos:
         - mistral_client: Cliente para interagir com a API do Mistral, configurado com a chave de API.
+    """
     """
     load_dotenv()
     API_KEY = os.getenv("API_KEY")
@@ -19,7 +23,7 @@ class Env:
     mistral_client = Mistral(api_key=API_KEY)
 
     HuggingFace_API_KEY = os.getenv("HuggingFace_API_KEY")
-
+    """
     @classmethod
     def get_mistral_client(cls):
         """
