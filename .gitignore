@@ -1,0 +1,69 @@
+.DS_Store
+Thumbs.db
+
+# Ambiente virtual
+.venv/
+venv/
+ENV/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribuição / empacotamento
+dist/
+build/
+*.egg-info/
+
+# Streamlit
+.streamlit/
+
+# Testes e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.benchmarks/
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# Arquivos temporários
+*.log
+*.tmp
+logs/
+
+# Arquivos de backup
+*.bak
+
+# Arquivos do plantUML
+*.png
+*.puml
+out/
+
+# resumos e diagramas
+summary.txt
+update.txt
+config-brainstorm.txt
+DATA_INGESTION_SEQUENCE.md
+nq_benchmark_evaluator.py
+nq_benchmark_workflow.py
+NQ_Benchmarking_Plan.md
+nq_corpus_extractor.py
+NQ_Quick_Start_Guide.md
+nq_rag_integration.py
+
+# Databases and faiss index files
+storage/domains/
+storage/control.db
+
+# Other custom dev files
+clustering_experiment.py

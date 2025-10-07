@@ -1,11 +1,14 @@
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 import streamlit as st
 import os
 import copy
 
 from pydantic import ValidationError
 
-from src.utils.logger import get_logger
-from gui.streamlit_utils import (
+from rag.src.utils.logger import get_logger
+from rag.gui.streamlit_utils import (
     update_log_levels_callback, 
     get_domain_manager, 
     initialize_logging_session, 
@@ -13,8 +16,8 @@ from gui.streamlit_utils import (
     load_configuration,
     get_config_manager
 )
-from src.config.config_manager import ConfigurationError
-from src.config.models import LLMConfig, QueryConfig
+from rag.src.config.config_manager import ConfigurationError
+from rag.src.config.models import LLMConfig, QueryConfig
 
 st.set_page_config(
     page_title="Query Interface",
@@ -129,7 +132,52 @@ with st.sidebar:
     query_retrieval_k = st.number_input("K Documentos", min_value=1, step=1, value=config.query.retrieval_k, key="sidebar_query_retrieval_k", help="Número de documentos a serem recuperados para a query.")
     
     st.header("Parâmetros do LLM")
-    llm_model_repo_id = st.text_input("Model Repo ID", value=config.llm.model_repo_id, key="sidebar_llm_model_repo_id")
+    current_provider = getattr(config.llm, 'provider', 'gemini')
+    use_gemini = st.toggle("Usar Gemini", value=(current_provider == "gemini"), key="toggle_use_gemini")
+
+    # Alterna provedor ao clicar no toggle
+    if use_gemini != (current_provider == "gemini"):
+        try:
+            manager = get_config_manager()
+            updated = config.model_copy(deep=True)
+            updated.llm.provider = "gemini" if use_gemini else "huggingface"
+            manager.save_config(updated)
+            logger.info("Provider LLM alterado via toggle na Query Interface", provider=updated.llm.provider)
+            # Limpa cache e força recarregar configuracoes
+            st.cache_data.clear()
+            st.rerun()
+        except Exception as e:
+            logger.error("Erro ao alternar provider LLM via toggle", exc_info=True)
+            st.error(f"Erro ao alternar provider LLM: {e}")
+
+    # Campos condicionais conforme provider
+    if use_gemini:
+        default_gem = getattr(config.llm, 'gemini_model_name', None) or ""
+        st.text_input(
+            "Gemini Model Name",
+            value=default_gem,
+            key="sidebar_gemini_model_name",
+            help="Nome do modelo Gemini a ser usado."
+        )
+    else:
+        default_repo = getattr(config.llm, 'hf_model_repo_id', None) or ""
+        st.text_input(
+            "Model Repo ID (HF)",
+            value=default_repo,
+            key="sidebar_llm_model_repo_id",
+            help="ID do repositório do modelo no Hugging Face Hub."
+        )
+
+    # Provider status expander
+    with st.expander("Status do Provedor LLM", expanded=False):
+        if current_provider == "gemini":
+            st.write(f"Provider: Gemini")
+            st.write(f"Modelo: {getattr(config.llm, 'gemini_model_name', None) or '—'}")
+            st.write(f"Chave presente: {'sim' if os.getenv('GEMINI_API_KEY') else 'não'}")
+        else:
+            st.write(f"Provider: Hugging Face")
+            st.write(f"Repo: {getattr(config.llm, 'hf_model_repo_id', None) or '—'}")
+            st.write(f"Token presente: {'sim' if os.getenv('HUGGINGFACE_API_TOKEN') else 'não'}")
     llm_prompt_template = st.text_area("Prompt Template", value=config.llm.prompt_template, key="sidebar_llm_prompt_template", height=100)
     llm_max_new_tokens = st.number_input("Max New Tokens", min_value=1, step=1, value=config.llm.max_new_tokens, key="sidebar_llm_max_new_tokens")
     llm_temperature = st.slider("Temperature", min_value=0.0, max_value=2.0, step=0.01, value=config.llm.temperature, key="sidebar_llm_temperature")
@@ -204,44 +252,67 @@ if prompt := st.chat_input("Pergunte aqui..."):
     # --- Salva automaticamente a configuração do LLM se tiver sido alterada --- 
     try:
         current_query_config = QueryConfig(retrieval_k=query_retrieval_k)
-        current_llm_config = LLMConfig(
-            model_repo_id=llm_model_repo_id,
-            prompt_template=llm_prompt_template,
-            max_new_tokens=llm_max_new_tokens,
-            temperature=llm_temperature,
-            top_p=llm_top_p,
-            top_k=llm_top_k,
-            repetition_penalty=llm_repetition_penalty,
-            max_retries=config.llm.max_retries, # Não é alterado nessa página
-            retry_delay_seconds=config.llm.retry_delay_seconds, # Não é alterado nessa página
-        )
+        # Provider-aware LLM config assembly
+        use_gemini_now = st.session_state.get("toggle_use_gemini", getattr(config.llm, 'provider', 'gemini') == 'gemini')
+        gem_name_val = st.session_state.get("sidebar_gemini_model_name", getattr(config.llm, 'gemini_model_name', None))
+        hf_repo_val = st.session_state.get("sidebar_llm_model_repo_id", getattr(config.llm, 'hf_model_repo_id', None))
+
+        if use_gemini_now:
+            current_llm_config = LLMConfig(
+                provider="gemini",
+                gemini_model_name=gem_name_val,
+                prompt_template=llm_prompt_template,
+                max_new_tokens=llm_max_new_tokens,
+                temperature=llm_temperature,
+                top_p=llm_top_p,
+                top_k=llm_top_k,
+                repetition_penalty=llm_repetition_penalty,
+                max_retries=config.llm.max_retries,
+                retry_delay_seconds=config.llm.retry_delay_seconds,
+            )
+        else:
+            current_llm_config = LLMConfig(
+                provider="huggingface",
+                hf_model_repo_id=hf_repo_val,
+                prompt_template=llm_prompt_template,
+                max_new_tokens=llm_max_new_tokens,
+                temperature=llm_temperature,
+                top_p=llm_top_p,
+                top_k=llm_top_k,
+                repetition_penalty=llm_repetition_penalty,
+                max_retries=config.llm.max_retries,
+                retry_delay_seconds=config.llm.retry_delay_seconds,
+            )
 
         if current_llm_config != st.session_state.original_llm_config or current_query_config != st.session_state.original_query_config:
             logger.info("Parâmetros alterados no sidebar, salvando configuração automaticamente...")
-            
-            # Usa o objeto de configuração principal carregado no inicio da execução do script
-            if not config: 
-                 st.error("Não é possível salvar as alterações: Configuração principal não carregada.")
+
+            # Usa uma CÓPIA da configuração (AppConfig) para evitar problemas de identidade/tipo
+            # em cenários de recarregamento do Streamlit e manter a validação do Pydantic.
+            if not config:
+                st.error("Não é possível salvar as alterações: Configuração principal não carregada.")
             else:
-                # Atualiza o objeto de configuração carregado na memória diretamente
-                config.llm = current_llm_config
-                config.query = current_query_config
-                
-                # Pass the fully updated config to the orchestrator
-                logger.info("Atualizando o orchestrator com a nova configuração...")
-                orchestrator.update_config(config) 
-                
-                # Save the fully updated config object to the file
-                logger.info("Salvando a configuração atualizada no arquivo...")
-                manager.save_config(config)
-                
+                # Cria uma cópia profunda do AppConfig atual e aplica as alterações nas seções relevantes
+                updated_config = config.model_copy(deep=True)
+                updated_config.llm = current_llm_config
+                updated_config.query = current_query_config
+
+                # Atualiza o orchestrator com a configuração COMPLETA e consistente
+                logger.info("Atualizando o orchestrator com a nova configuração (cópia)...")
+                orchestrator.update_config(updated_config)
+
+                # Persiste a configuração atualizada no arquivo via ConfigManager
+                logger.info("Salvando a configuração atualizada no arquivo (AppConfig)...")
+                manager.save_config(updated_config)
+
+                # Limpa cache para forçar recarregamento das configurações na próxima leitura
                 load_configuration.clear()
-                
-                # Atualiza o estado da session com a nova configuração salva
+
+                # Atualiza o estado da sessão com os valores efetivamente salvos
                 logger.info("Atualizando a configuração original na session state...")
-                st.session_state.original_llm_config = copy.deepcopy(current_llm_config)
-                st.session_state.original_query_config = copy.deepcopy(current_query_config)
-                
+                st.session_state.original_llm_config = copy.deepcopy(updated_config.llm)
+                st.session_state.original_query_config = copy.deepcopy(updated_config.query)
+
                 st.toast("Configurações salvas automaticamente!")
         else:
             logger.debug("Parâmetros não alterados, prosseguindo com a query.")
@@ -289,6 +360,24 @@ Pensando...""")
                 agent_answer = f"Ocorreu um erro ao processar sua pergunta: {e}"
 
             message_placeholder.markdown(agent_answer)
+
+    # Se modo debug estiver ativo, exibir chunks de contexto utilizados
+    if st.session_state.get('debug_mode', False):
+        with st.expander("Chunks enviados ao LLM (debug)", expanded=False):
+            ctx_chunks = []
+            try:
+                if isinstance(response_data, dict):
+                    ctx_chunks = response_data.get("context_chunks", []) or []
+            except Exception:
+                ctx_chunks = []
+
+            if not ctx_chunks:
+                st.caption("Nenhum chunk exibido (talvez nenhum recuperado ou modo sem contexto).")
+            else:
+                st.write(f"Total de chunks: {len(ctx_chunks)}")
+                for i, c in enumerate(ctx_chunks, start=1):
+                    st.markdown(f"**Chunk {i}:**")
+                    st.code(c)
             
     # Adiciona a resposta do assistente ao histórico de chat
     st.session_state.messages.append({"role": "assistant", "content": agent_answer})

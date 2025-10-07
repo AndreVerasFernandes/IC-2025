@@ -29,6 +29,8 @@ batch_size = 32
 
 # Normalizar embeddings (recomendado para similaridade de cosseno). default: true
 normalize_embeddings = true
+weight = 0.7
+combine_embeddings = false
 
 [vector_store]
 # Tipo de índice FAISS: "IndexFlatL2" (simples, busca exata), potencialmente "IndexIDMap" depois
@@ -45,15 +47,23 @@ retrieval_k = 5
 # rerank_strategy = "none"
 
 [llm]
+# Provedor do modelo de LLM
+# Default: "gemini"; opt: "huggingface"
+provider = "gemini"
+
+# ID do modelo Gemini para inferência
+# Default: "gemini-2.0-flash"
+gemini_model_name = "gemini-2.0-flash"
+
 # ID do repositório do modelo Hugging Face Hub para inferência
 # Default: "mistralai/Mistral-7B-Instruct-v0.3"
-model_name = "gemini-2.0-flash"
+hf_model_repo_id = "mistralai/Mistral-7B-Instruct-v0.3"
 
 # --- Parâmetros da Geração de Texto --- 
 
 # Máximo de tokens a serem gerados na resposta. Controla o comprimento máximo.
 # Default: 1000
-max_new_tokens = 1000
+max_new_tokens = 1024
 
 # Controla a aleatoriedade: valores baixos (<0.5) tornam a saída mais focada/determinística,
 # valores altos (>0.7) tornam mais aleatória/criativa.
@@ -87,7 +97,7 @@ retry_delay_seconds = 2
 # --- Template do Prompt --- 
 # Define a estrutura do prompt enviado ao LLM, incluindo contexto e query.
 # Default: (Ver modelo LLMConfig em models.py)
-prompt_template = "Use o seguinte contexto para responder a pergunta no final.\nSe você não sabe a resposta, apenas diga que não sabe, não tente inventar uma resposta.\nMantenha a resposta concisa e diretamente ao ponto da pergunta.\nForneça a resposta *apenas* com base no contexto fornecido. Não adicione informações externas.\n"
+prompt_template = "Use o seguinte contexto para responder a pergunta no final.\nIgnore os cabeçalhos ([documento: ..., keywords: ...] [página: ..., índice: ...])\nUse apenas números presentes nos documentos.\nSe você não sabe a resposta, apenas diga que não sabe, não tente inventar uma resposta.\nMantenha a resposta concisa e diretamente ao ponto da pergunta.\nForneça a resposta *apenas* com base no contexto fornecido. Não adicione informações externas.\n"
 
 [text_normalizer]
 # Configurações para os passos de normalização de texto
@@ -102,3 +112,6 @@ use_lowercase = true
 
 # Remover espaços em branco extras (no início/fim e múltiplos espaços)?
 use_remove_extra_whitespace = true 
+[clustering]
+distance_threshold = 0.85
+max_words = 250

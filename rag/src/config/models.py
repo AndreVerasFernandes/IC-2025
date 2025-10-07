@@ -21,11 +21,11 @@ class EmbeddingConfig(BaseModel):
         "sentence-transformers/all-mpnet-base-v2", 
         "sentence-transformers/LaBSE",
         "intfloat/e5-large-v2"
-        ] = "sentence-transformers/all-mpnet-base-v2"
+        ] = "intfloat/e5-large-v2"
     device: Literal["cpu", "cuda"] = "cpu"
     batch_size: PositiveInt = 32
     normalize_embeddings: bool = True
-    weight: float = 0.7
+    weight: float = 0.05
     combine_embeddings: bool = False
     @property
     def embedding_options(self):
@@ -40,7 +40,7 @@ class ClusteringConfig(BaseModel):
     max_words: int = 250
 
 class VectorStoreConfig(BaseModel):
-    index_type: Literal["IndexFlatL2"] = "IndexFlatL2" # IndexFlatL2 possui um IndexIDMap wrapper em nosso sistema
+    index_type: Literal["IndexFlatL2", "IndexFlatIP"] = "IndexFlatIP" # Ambos possuem umIndexIDMap wrapper em nosso sistema. IndexFlatIP necessita de normalização dos embeddings.
     index_params: Optional[Dict[str, Any]] = None
     
     @property
@@ -52,8 +52,10 @@ class QueryConfig(BaseModel):
     # rerank_strategy: Literal["none"] = "none" # Adicionar depois
 
 class LLMConfig(BaseModel):
-    model_repo_id: str = "gemini-2.0-flash"
-    max_new_tokens: PositiveInt = 1000
+    provider: Literal["huggingface", "gemini"] = "gemini"
+    hf_model_repo_id: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    gemini_model_name: str = "gemini-2.0-flash"
+    max_new_tokens: PositiveInt = 1024
     temperature: confloat(ge=0.0, le=2.0) = 0.7 # type: ignore
     top_p: Optional[confloat(ge=0.0, le=1.0)] = 0.9 # type: ignore
     top_k: Optional[PositiveInt] = 50

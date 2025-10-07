@@ -5,22 +5,28 @@ import os
 import torch
 
 from typing import Optional, List
-from src.models import DocumentFile
-from src.utils.logger import get_logger, setup_logging
+from rag.src.models import DocumentFile
+from rag.src.utils.logger import get_logger, setup_logging
 
-from src.config.config_manager import ConfigurationError, ConfigManager
-from src.config.models import AppConfig
-from src.utils import DomainManager, SQLiteManager 
-from src.data_ingestion import DataIngestionOrchestrator
-from src.query_processing import QueryOrchestrator
+from rag.src.config.config_manager import ConfigurationError, ConfigManager
+from pathlib import Path
+from rag.src.config.models import AppConfig
+from rag.src.utils import DomainManager, SQLiteManager 
+from rag.src.data_ingestion import DataIngestionOrchestrator
+from rag.src.query_processing import QueryOrchestrator
+from rag.src.query_processing.hf_llm_adapter import HuggingFaceLLMAdapter
+from agent.generator import Generator
 
 logger = get_logger(__name__, log_domain="streamlit_utils")
 
 @st.cache_resource
 def get_config_manager() -> ConfigManager:
-    """Cria e cacheia uma instância ConfigManager para o caminho de configuração padrão."""
-    logger.info("Criando e cacheando instância ConfigManager para o caminho padrão.")
-    return ConfigManager()
+    """Cria e cacheia uma instância ConfigManager apontando para rag/config.toml."""
+    # Resolve rag/config.toml a partir deste arquivo (rag/gui/streamlit_utils.py)
+    rag_dir = Path(__file__).resolve().parent.parent  # .../rag/gui -> .../rag
+    config_path = (rag_dir / "config.toml").resolve()
+    logger.info(f"Criando e cacheando instância ConfigManager para: {config_path}")
+    return ConfigManager(config_path)
 
 @st.cache_data # Cacheia os dados carregados
 def load_configuration() -> Optional[AppConfig]:
@@ -102,13 +108,51 @@ def get_data_ingestion_orchestrator(_config: AppConfig) -> Optional[DataIngestio
 
 @st.cache_resource
 def get_query_orchestrator(_config: AppConfig) -> Optional[QueryOrchestrator]:
-    """Cria uma instância QueryOrchestrator usando a configuração carregada."""
+    """Cria uma instância QueryOrchestrator usando a configuração carregada e o provedor de LLM selecionado."""
     logger.info("Criando instância QueryOrchestrator (cacheada)")
     if not _config:
         logger.error("Não é possível criar QueryOrchestrator: Objeto de configuração é None.")
         return None
     try:
-        return QueryOrchestrator(config=_config)
+        provider = getattr(_config.llm, "provider", "gemini")
+        # Backward-compat and provider-aware fields
+        hf_repo = getattr(_config.llm, 'hf_model_repo_id', None) or getattr(_config.llm, 'model_repo_id', None)
+        gem_model = getattr(_config.llm, 'gemini_model_name', None) or hf_repo
+        max_tokens = _config.llm.max_new_tokens
+        temperature = _config.llm.temperature
+
+        # Provider validation and logging
+        errors = []
+        if provider == "gemini":
+            if not os.getenv("GEMINI_API_KEY"):
+                errors.append("GEMINI_API_KEY ausente no ambiente.")
+            if not gem_model:
+                errors.append("gemini_model_name não configurado em [llm].")
+        elif provider == "huggingface":
+            if not os.getenv("HUGGINGFACE_API_TOKEN"):
+                errors.append("HUGGINGFACE_API_TOKEN ausente no ambiente.")
+            if not hf_repo:
+                errors.append("hf_model_repo_id não configurado em [llm].")
+
+        if errors:
+            for e in errors:
+                logger.error(f"[LLM Validation] {e}")
+                st.error(f"[LLM] {e}")
+            st.stop()
+
+        llm_impl = None
+        if provider == "gemini" and os.getenv("GEMINI_API_KEY"):
+            logger.info("Selecionando provedor Gemini para GUI", model=gem_model)
+            try:
+                llm_impl = Generator(model_name=gem_model, max_tokens=max_tokens, temperature=temperature)
+            except Exception as e:
+                logger.warning("Falha ao inicializar Generator(Gemini); alternando para Hugging Face", error=str(e))
+
+        if llm_impl is None:
+            logger.info("Selecionando provedor Hugging Face para GUI", model=hf_repo)
+            llm_impl = HuggingFaceLLMAdapter(config=_config.llm, log_domain="gui")
+
+        return QueryOrchestrator(config=_config, llm_generator=llm_impl)
     except Exception as e:
         logger.error(f"Falha ao criar instância do QueryOrchestrator: {e}", exc_info=True)
         st.error(f"Erro ao inicializar o QueryOrchestrator: {e}")

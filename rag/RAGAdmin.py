@@ -1,9 +1,12 @@
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
 import traceback
 import pandas as pd
 
-from gui.streamlit_utils import update_log_levels_callback, initialize_logging_session, load_configuration, get_domain_manager
-from src.utils.logger import get_logger
+from rag.gui.streamlit_utils import update_log_levels_callback, initialize_logging_session, load_configuration, get_domain_manager, get_config_manager
+from rag.src.utils.logger import get_logger
 
 st.set_page_config(
     layout="wide",
@@ -27,6 +30,7 @@ logger = get_logger(__name__, log_domain="gui/Admin")
 config = load_configuration()
 if config:
     domain_manager = get_domain_manager(config)
+    manager = get_config_manager()
 
 # --- Sidebar Debug Toggle --- 
 st.sidebar.divider()
@@ -40,6 +44,57 @@ st.sidebar.toggle(
 )
 st.sidebar.divider()
 # --------------------------
+
+with st.sidebar:
+    st.header("LLM Provider")
+    if config:
+        provider = st.radio(
+            "Selecionar Provedor:",
+            options=["gemini", "huggingface"],
+            index=0 if getattr(config.llm, 'provider', 'gemini') == 'gemini' else 1,
+            key="admin_llm_provider",
+            help="Escolha o provedor LLM para a GUI."
+        )
+
+        gem_model = st.text_input(
+            "Gemini Model Name",
+            value=getattr(config.llm, 'gemini_model_name', None) or "",
+            disabled=(provider != "gemini"),
+            key="admin_gemini_model_name"
+        )
+
+        hf_repo = st.text_input(
+            "HF Model Repo ID",
+            value=getattr(config.llm, 'hf_model_repo_id', None) or "",
+            disabled=(provider != "huggingface"),
+            key="admin_hf_model_repo_id"
+        )
+
+        if st.button("Salvar Provedor LLM"):
+            try:
+                updated = config.model_copy(deep=True)
+                updated.llm.provider = provider
+                updated.llm.gemini_model_name = gem_model if gem_model else None
+                updated.llm.hf_model_repo_id = hf_repo if hf_repo else None
+                manager.save_config(updated)
+                st.success("Configuração do LLM salva com sucesso.")
+                logger.info("LLM provider atualizado via Admin", provider=provider, gemini_model=gem_model, hf_repo=hf_repo)
+            except Exception as e:
+                st.error(f"Erro ao salvar configuração do LLM: {e}")
+                logger.error("Erro ao salvar configuração LLM via Admin", exc_info=True)
+
+    st.divider()
+    with st.expander("Status do Provedor LLM", expanded=False):
+        if config:
+            current_provider = getattr(config.llm, 'provider', 'gemini')
+            if current_provider == 'gemini':
+                st.write(f"Provider: Gemini")
+                st.write(f"Modelo: {getattr(config.llm, 'gemini_model_name', None) or '—'}")
+                st.write(f"Chave presente: {'sim' if os.getenv('GEMINI_API_KEY') else 'não'}")
+            else:
+                st.write(f"Provider: Hugging Face")
+                st.write(f"Repo: {getattr(config.llm, 'hf_model_repo_id', None) or '—'}")
+                st.write(f"Token presente: {'sim' if os.getenv('HUGGINGFACE_API_TOKEN') else 'não'}")
 
 st.sidebar.success("Selecione uma seção acima.")
 

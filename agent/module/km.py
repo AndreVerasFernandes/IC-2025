@@ -8,7 +8,13 @@ rag_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../rag'))
 from rag.RAGInterface import RAGInterface
 
 class KnowledgeManagement:
-    def __init__(self, config_path="../rag/config.toml"):
+    def __init__(self, config_path=None):
+        # Set the correct config path relative to THIS file's location
+        if config_path is None:
+            # Get the directory where this Python file is located
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Go up two levels (from agent/module/ to project root) then to rag/config.toml
+            config_path = os.path.join(current_dir, '../../rag/config.toml')
         # Inicializando o RAGInterface dentro do KM
         self.rag_interface = RAGInterface(config_path=config_path)
     

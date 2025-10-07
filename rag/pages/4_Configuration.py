@@ -1,12 +1,15 @@
 # Placeholder for Configuration Page 
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 
 import streamlit as st
 from typing import Dict, Any
 
-from src.utils.logger import get_logger
-from src.config.models import AppConfig, SystemConfig, IngestionConfig, EmbeddingConfig, VectorStoreConfig, QueryConfig, LLMConfig, TextNormalizerConfig
-from src.config.config_manager import ConfigManager, ConfigurationError
-from gui.streamlit_utils import load_configuration, initialize_logging_session, update_log_levels_callback, get_config_manager
+from rag.src.utils.logger import get_logger
+from rag.src.config.models import AppConfig, SystemConfig, IngestionConfig, EmbeddingConfig, VectorStoreConfig, QueryConfig, LLMConfig, TextNormalizerConfig
+from rag.src.config.config_manager import ConfigManager, ConfigurationError
+from rag.gui.streamlit_utils import load_configuration, initialize_logging_session, update_log_levels_callback, get_config_manager
 from pydantic import ValidationError
 
 
@@ -132,7 +135,8 @@ if config:
                     )
 
                     new_llm_config = LLMConfig(
-                        model_repo_id=config.llm.model_repo_id, # Não é alterado nessa página
+                        hf_model_repo_id=(getattr(config.llm, 'hf_model_repo_id', None), # Não é alterado nessa página
+                        gemini_model_name=(getattr(config.llm, 'gemini_model_name', None), # Não é alterado nessa página
                         prompt_template=config.llm.prompt_template, # Não é alterado nessa página
                         max_new_tokens=config.llm.max_new_tokens, # Não é alterado nessa página
                         temperature=config.llm.temperature, # Não é alterado nessa página

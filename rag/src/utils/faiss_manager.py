@@ -48,6 +48,11 @@ class FaissManager:
                 # IndexIDMap como wrapper para permitir uso de IDs personalizados
                 index = faiss.IndexIDMap(base_index)
 
+            case "IndexFlatIP":
+                base_index = faiss.IndexFlatIP(dimension)
+                # IndexIDMap como wrapper para permitir uso de IDs personalizados
+                index = faiss.IndexIDMap(base_index)
+
             #TODO: Implementar outros tipos de índice
 
         self._save_state(index, index_path)
@@ -86,7 +91,7 @@ class FaissManager:
                 return index
             # Se o arquivo de índice não existir, cria um novo índice
             else:
-                self.logger.warning(f"Indice FAISS não encontrado em {index_path}. Criando novo indice IndexIDMap(IndexFlatL2) com dimensão {dimension}.")
+                self.logger.warning(f"Indice FAISS não encontrado em {index_path}. Criando novo indice IDMAP({self.config.vector_store.index_type}) com dimensão {dimension}.")
                 index = self._create_vector_store(index_path, dimension)
 
                 return index
@@ -186,7 +191,7 @@ class FaissManager:
             self.logger.error(msg)
             raise ValueError(msg)
 
-        self.logger.info(f"Realizando busca por similaridade (IDMap, dim={dimension}) no índice {index_path}", top_k=k)
+        self.logger.info(f"Realizando busca por similaridade (IDMap/{self.config.vector_store.index_type}, dim={dimension}) no índice {index_path}", top_k=k)
         try:
             index = self._initialize_index(index_path, dimension)
             if index.ntotal == 0:

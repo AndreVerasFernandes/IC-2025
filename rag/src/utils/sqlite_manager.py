@@ -1,4 +1,5 @@
 import sqlite3
+from pathlib import Path
 import os
 import json
 
@@ -12,8 +13,9 @@ from rag.src.config.models import SystemConfig
 class SQLiteManager:
     """Gerenciador de banco de dados SQLite."""
 
-    CONTROL_SCHEMA_PATH: str = os.path.join("storage", "schemas", "control_schema.sql")
-    DOMAIN_SCHEMA_PATH: str = os.path.join("storage", "schemas", "schema.sql")
+    _RAG_DIR = Path(__file__).resolve().parents[2]  # .../rag/src/utils -> .../rag
+    CONTROL_SCHEMA_PATH: str = str(_RAG_DIR / "storage" / "schemas" / "control_schema.sql")
+    DOMAIN_SCHEMA_PATH: str  = str(_RAG_DIR / "storage" / "schemas" / "schema.sql")
 
     def __init__(self, config: SystemConfig, log_domain: str = "utils"):
         self.config = config.model_copy(deep=True)

@@ -84,8 +84,6 @@ class RAGInterface:
                 sqlite_manager=self.sqlite_manager,
                 log_domain="RAG Interface"
             )
-            
-            
             # Initialize query orchestrator
             self.query_orchestrator = QueryOrchestrator(self.config, self.sqlite_manager, llm_generator)
             
@@ -94,6 +92,8 @@ class RAGInterface:
         except Exception as e:
             self.logger.error(f"Failed to initialize RAG Interface: {e}", exc_info=True)
             raise RAGInterfaceError(f"Initialization failed: {e}") from e
+
+    
 
     def query_llm(self, question: str, domains: Optional[List[str]] = None) -> Dict[str, Any]:
         """

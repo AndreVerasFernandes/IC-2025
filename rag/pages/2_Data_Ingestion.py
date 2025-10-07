@@ -1,8 +1,11 @@
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 import streamlit as st
 import os
 
-from src.utils.logger import get_logger
-from gui.streamlit_utils import update_log_levels_callback, get_domain_manager, initialize_logging_session, get_data_ingestion_orchestrator, load_configuration
+from rag.src.utils.logger import get_logger
+from rag.gui.streamlit_utils import update_log_levels_callback, get_domain_manager, initialize_logging_session, get_data_ingestion_orchestrator, load_configuration
 
 
 st.set_page_config(

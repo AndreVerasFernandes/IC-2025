@@ -36,7 +36,7 @@ class HuggingFaceManager:
         self.max_retries = new_config.max_retries
         self.retry_delay = new_config.retry_delay_seconds
 
-        if new_config.model_repo_id != self.config.model_repo_id:
+        if new_config.hf_model_repo_id != self.config.hf_model_repo_id:
             self.config = new_config.model_copy(deep=True)
             self.client = self._initialize_client()
 
@@ -54,7 +54,7 @@ class HuggingFaceManager:
         if not token:
             self.logger.warning("HUGGINGFACE_API_TOKEN não encontrado no ambiente. Algumas operações podem falhar.")
         
-        self.logger.debug(f"Inicializado InferenceClient do Hugging Face para o modelo: {self.config.model_repo_id}")
+        self.logger.debug(f"Inicializado InferenceClient do Hugging Face para o modelo: {self.config.hf_model_repo_id}")
         return InferenceClient(
             token=token,
             #model=self.config.model_repo_id,

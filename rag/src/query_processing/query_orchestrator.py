@@ -29,9 +29,12 @@ class QueryOrchestrator:
         
         # INSTANCIAÇÃO DA SUA CLASSE GENERATOR COM AS CONFIGURAÇÕES
         self.llm_generator = llm_generator if llm_generator else Generator(
-            model_name=config.llm.model_repo_id,
+            model_name=config.llm.gemini_model_name,
             max_tokens=config.llm.max_new_tokens,
             temperature=config.llm.temperature
+        ) if config.llm.provider == "gemini" else HuggingFaceLLMAdapter(
+            config=config.llm,
+            log_domain=self.DEFAULT_LOG_DOMAIN
         )
 
     def update_config(self, new_config: AppConfig) -> None:
@@ -313,6 +316,7 @@ class QueryOrchestrator:
         self.metrics_data["faiss_index_type"] = self.faiss_manager.config.vector_store.index_type
         self.metrics_data["retrieved_chunks"] = 0
         self.metrics_data["context_prompt"] = None
+        self.metrics_data["context_chunks"] = []
 
     def query_llm(self, query: str, domain_names: Optional[List[str]] = None) -> Dict[str, Any]:
         """
@@ -354,6 +358,12 @@ class QueryOrchestrator:
                 ]
             else:
                 self.logger.debug(f"Chunks recuperados para contexto ({len(chunks)} total)")
+                # Expor os conteúdos dos chunks para debug/GUI
+                try:
+                    self.metrics_data["context_chunks"] = [chunk.content for chunk in chunks]
+                except Exception:
+                    # Garante que sempre seja uma lista mesmo se algo falhar
+                    self.metrics_data["context_chunks"] = []
                 messages = self._prepare_context_prompt(chunks, query)
                 self.logger.debug("Mensagens de contexto e pergunta sendo enviadas ao LLM:", final_messages=messages)
             
