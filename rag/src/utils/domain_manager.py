@@ -1,16 +1,21 @@
 import os
 import shutil
+from pathlib import Path
 from typing import Dict, Any, List, Tuple
 from rag.src.utils.sqlite_manager import SQLiteManager
 from rag.src.utils.logger import get_logger
 from rag.src.models import Domain, DocumentFile, DomainConfig
 from rag.src.config.models import AppConfig
+
 class DomainManager:
 
     def __init__(self, config: AppConfig, sqlite_manager: SQLiteManager, log_domain: str = "utils"):
         self.config = config.model_copy(deep=True)
         self.sqlite_manager = sqlite_manager
-        self.storage_base_path = config.system.storage_base_path
+        
+        # Resolve storage path relative to RAG system directory
+        rag_dir = Path(__file__).resolve().parents[2]  # .../rag/src/utils -> .../rag
+        self.storage_base_path = os.path.join(rag_dir, config.system.storage_base_path)
 
         self.logger = get_logger(__name__, log_domain)
         self.logger.info("Inicializando DomainManager")
@@ -22,8 +27,10 @@ class DomainManager:
         Args:
             config (AppConfig): A nova configuração a ser aplicada.
         """
-
-        self.storage_base_path = new_config.system.storage_base_path
+        # Resolve storage path relative to RAG system directory
+        rag_dir = Path(__file__).resolve().parents[2]  # .../rag/src/utils -> .../rag
+        self.storage_base_path = os.path.join(rag_dir, new_config.system.storage_base_path)
+        
         self.sqlite_manager.update_config(new_config.system)
         self.config = new_config.model_copy(deep=True)
         self.logger.info("Configuracoes do DomainManager atualizadas com sucesso")
